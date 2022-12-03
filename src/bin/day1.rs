@@ -7,20 +7,15 @@ use itertools::Itertools;
 fn main() {
     let input = read_to_string("input/day1-input.txt").unwrap();
 
-    let items_per_elf: Vec<Vec<u32>> = input
+    // Sum calories per elf, and sort in descending order
+    let calories_per_elf = input
         .split("\n\n")
         .map(|elf_input| {
             elf_input
                 .lines()
                 .map(|l| l.parse::<u32>().unwrap())
-                .collect_vec()
+                .sum::<u32>()
         })
-        .collect_vec();
-
-    // Sum calories per elf, and sort in descending order
-    let calories_per_elf: Vec<u32> = items_per_elf
-        .iter()
-        .map(|items| items.iter().sum::<u32>())
         .sorted_by(|a, b| Ord::cmp(b, a))
         .collect_vec();
 
