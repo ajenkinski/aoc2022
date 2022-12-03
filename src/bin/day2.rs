@@ -4,6 +4,9 @@ use std::fs::read_to_string;
 
 use itertools::Itertools;
 
+// NOTE: The order of Move and Outcome enum members is significant, because the numeric values are
+// used by the algorithm.
+
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 enum Move {
     Rock,
@@ -18,28 +21,36 @@ enum Outcome {
     Win,
 }
 
-impl Move {
-    fn parse(ch: char) -> Option<Move> {
-        Move::try_from_i32((ch as i32) - ('A' as i32))
-    }
+impl TryFrom<i32> for Move {
+    type Error = String;
 
-    fn try_from_i32(i: i32) -> Option<Move> {
-        match i {
-            0 => Some(Move::Rock),
-            1 => Some(Move::Paper),
-            2 => Some(Move::Scissor),
-            _ => None,
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Move::Rock),
+            1 => Ok(Move::Paper),
+            2 => Ok(Move::Scissor),
+            _ => Err(format!("Invalid move: {}", value)),
         }
     }
+}
 
+impl TryFrom<char> for Move {
+    type Error = String;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        ((value as i32) - ('A' as i32)).try_into()
+    }
+}
+
+impl Move {
     /// Return the move that would beat self
     fn winning_move(&self) -> Move {
-        Move::try_from_i32((*self as i32 + 1) % 3).unwrap()
+        Move::try_from((*self as i32 + 1) % 3).unwrap()
     }
 
     /// Return the move that would lose to self
     fn losing_move(&self) -> Move {
-        Move::try_from_i32((*self as i32 - 1).rem_euclid(3)).unwrap()
+        Move::try_from((*self as i32 - 1).rem_euclid(3)).unwrap()
     }
 }
 
@@ -61,11 +72,11 @@ fn get_round_score(opponent_move: Move, my_move: Move) -> usize {
 
 fn solve_part1(rounds: &[(char, char)]) -> usize {
     let scores = rounds.iter().map(|&(opponent_char, my_char)| {
-        let opponent_move = Move::parse(opponent_char).unwrap();
+        let opponent_move = Move::try_from(opponent_char).unwrap();
 
         // for part 1, assume X,Y,Z map to A,B,C
         let my_char = char::from_u32((my_char as u32) - ('X' as u32) + ('A' as u32)).unwrap();
-        let my_move = Move::parse(my_char).unwrap();
+        let my_move = Move::try_from(my_char).unwrap();
 
         get_round_score(opponent_move, my_move)
     });
@@ -75,7 +86,7 @@ fn solve_part1(rounds: &[(char, char)]) -> usize {
 
 fn solve_part2(rounds: &[(char, char)]) -> usize {
     let scores = rounds.iter().map(|&(opponent_char, my_char)| {
-        let opponent_move = Move::parse(opponent_char).unwrap();
+        let opponent_move = Move::try_from(opponent_char).unwrap();
 
         // for part 2, assume X means we should lose, Y means we should draw, and Z means we should win
         let my_move = match my_char {
