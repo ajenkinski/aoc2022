@@ -1,6 +1,6 @@
-from typing import List, Tuple
 import re
 import sys
+from typing import List, Tuple
 
 
 def parse_input(input_file: str) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
@@ -23,6 +23,7 @@ def main():
     for (start1, end1), (start2, end2) in range_pairs:
         if (start1 >= start2 and end1 <= end2) or (start2 >= start1 and end2 <= end1):
             part1_solution += 1
+
         if (start2 <= start1 <= end2) or (start1 <= start2 <= end1):
             part2_solution += 1
 
