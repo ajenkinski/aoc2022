@@ -59,29 +59,19 @@ fn parse_input(input: &String) -> Problem {
     Problem { stacks, steps }
 }
 
-fn solve_part1(problem: &Problem) -> String {
-    let mut stacks = problem.stacks.clone();
-
-    for step in problem.steps.iter() {
-        for _ in 0..step.num_to_move {
-            let tmp = stacks[step.from_stack].pop().unwrap();
-            stacks[step.to_stack].push(tmp);
-        }
-    }
-
-    stacks
-        .into_iter()
-        .map(|stack| stack[stack.len() - 1])
-        .collect()
-}
-
-fn solve_part2(problem: &Problem) -> String {
+fn solve(problem: &Problem, at_once: bool) -> String {
     let mut stacks = problem.stacks.clone();
 
     for step in problem.steps.iter() {
         let from_stack = &mut stacks[step.from_stack];
-        let tmp = from_stack.split_off(from_stack.len() - step.num_to_move);
-        stacks[step.to_stack].extend_from_slice(&tmp);
+        let mut crates_to_move = from_stack.split_off(from_stack.len() - step.num_to_move);
+
+        if !at_once {
+            // simulate moving crates one-at-a-time
+            crates_to_move.reverse();
+        }
+
+        stacks[step.to_stack].extend_from_slice(&crates_to_move);
     }
 
     stacks
@@ -94,6 +84,6 @@ fn main() {
     let input = read_to_string("input/day5-input.txt").unwrap();
 
     let problem = parse_input(&input);
-    println!("Part 1 solution = {}", solve_part1(&problem));
-    println!("Part 2 solution = {}", solve_part2(&problem));
+    println!("Part 1 solution = {}", solve(&problem, false));
+    println!("Part 2 solution = {}", solve(&problem, true));
 }
