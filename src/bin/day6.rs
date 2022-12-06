@@ -6,17 +6,13 @@ use itertools::Itertools;
 
 /// Returns the index after the first sequence of marker_len unique characters
 fn solve(input: &[char], marker_len: usize) -> usize {
-    input
-        .windows(marker_len)
-        .enumerate()
-        .find_map(|(start, win)| {
-            if win.iter().unique().count() == marker_len {
-                Some(start + marker_len)
-            } else {
-                None
-            }
-        })
-        .expect("Failed to find marker")
+    for i in 0..(input.len() - marker_len) {
+        if input[i..i + marker_len].iter().unique().count() == marker_len {
+            return i + marker_len;
+        }
+    }
+
+    panic!("Failed to find marker");
 }
 
 // alternate implementation using a bitfield to keep track of unique characters.  I found this technique in the
