@@ -7,7 +7,7 @@ use itertools::Itertools;
 /// Returns the index after the first sequence of marker_len unique characters
 fn solve(input: &[char], marker_len: usize) -> usize {
     for i in 0..(input.len() - marker_len) {
-        if input[i..i + marker_len].iter().unique().count() == marker_len {
+        if input[i..i + marker_len].iter().all_unique() {
             return i + marker_len;
         }
     }
