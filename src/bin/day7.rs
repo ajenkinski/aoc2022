@@ -10,20 +10,17 @@ use std::{
 use itertools::Itertools;
 
 struct Dir {
-    name: String,
     files: Vec<File>,
     dirs: HashMap<String, Rc<RefCell<Dir>>>,
     parent: Option<Weak<RefCell<Dir>>>,
 }
 
 struct File {
-    name: String,
     size: usize,
 }
 
 fn parse_input(input: &String) -> Rc<RefCell<Dir>> {
     let root = Rc::new(RefCell::new(Dir {
-        name: "/".to_string(),
         files: vec![],
         dirs: HashMap::new(),
         parent: None,
@@ -32,7 +29,7 @@ fn parse_input(input: &String) -> Rc<RefCell<Dir>> {
     let mut cur_dir: Rc<RefCell<Dir>> = root.clone();
 
     for line in input.lines() {
-        let parts = line.split_ascii_whitespace().collect_vec();
+        let parts = line.split_whitespace().collect_vec();
         if line.starts_with("$ cd") {
             let to_dir = parts[2];
             if to_dir == ".." {
@@ -61,18 +58,14 @@ fn parse_input(input: &String) -> Rc<RefCell<Dir>> {
                 cur_dir.borrow_mut().dirs.insert(
                     name.to_string(),
                     Rc::new(RefCell::new(Dir {
-                        name: name.to_string(),
                         files: vec![],
                         dirs: HashMap::new(),
                         parent: Some(Rc::downgrade(&cur_dir)),
                     })),
                 );
             }
-        } else if line.starts_with(|ch: char| -> bool { ch.is_digit(10) }) {
-            cur_dir.borrow_mut().files.push(File {
-                name: parts[1].to_string(),
-                size: parts[0].parse().unwrap(),
-            });
+        } else if let Ok(size) = parts[0].parse::<usize>() {
+            cur_dir.borrow_mut().files.push(File { size });
         }
     }
 
