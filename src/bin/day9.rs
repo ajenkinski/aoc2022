@@ -49,6 +49,8 @@ fn solve(instructions: &Vec<Instruction>, num_knots: usize) -> usize {
                 {
                     rope[knot].row += (rope[knot - 1].row - rope[knot].row).signum();
                     rope[knot].col += (rope[knot - 1].col - rope[knot].col).signum();
+                } else {
+                    break;
                 }
             }
 
