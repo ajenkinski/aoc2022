@@ -10,6 +10,14 @@ Install rust if you haven't already.  Follow the instructions here to install th
 
 https://www.rust-lang.org/tools/install
 
+Make sure input files are downloaded by running 
+
+```
+AOC_SESSION=<session_id> ./download-inputs.sh
+```
+
+where `<session_id>` is the value of the "session" cookie for your logged in adventofcode.com session.  You can
+find the cookie value by looking in the developer tools for your browser for a cookie named "session".
 
 To run the solution for a specific day, run
 

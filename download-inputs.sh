@@ -14,7 +14,7 @@ fi
 
 set -e
 
-if ! [ -d "$inputs_dir" ]; then
+if [ ! -d "$inputs_dir" ]; then
     mkdir "$inputs_dir"
 fi
 
@@ -25,7 +25,7 @@ for src_file in "$solutions_dir"/day+([0-9]).rs; do
     base=$(basename "$src_file" .rs)
     day=${base#day}
     input_file="$inputs_dir/$base-input.txt"
-    if ! [ -f "$input_file" ]; then
+    if [ ! -f "$input_file" ]; then
         echo "Fetching $input_file"
         curl -b session="$AOC_SESSION" "https://adventofcode.com/$year/day/$day/input" > "$input_file"
     fi
