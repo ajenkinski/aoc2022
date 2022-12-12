@@ -21,29 +21,14 @@ fn parse_input(input: &String) -> Vec<Instruction> {
         .map(|line| {
             let (dir, n) = line.split_once(" ").unwrap();
             let count = n.parse::<usize>().unwrap();
-            match dir {
-                "U" => Instruction {
-                    count,
-                    dr: -1,
-                    dc: 0,
-                },
-                "D" => Instruction {
-                    count,
-                    dr: 1,
-                    dc: 0,
-                },
-                "L" => Instruction {
-                    count,
-                    dr: 0,
-                    dc: -1,
-                },
-                "R" => Instruction {
-                    count,
-                    dr: 0,
-                    dc: 1,
-                },
+            let (dr, dc) = match dir {
+                "U" => (-1, 0),
+                "D" => (1, 0),
+                "L" => (0, -1),
+                "R" => (0, 1),
                 _ => panic!("Unrecognized direction: {:?}", dir),
-            }
+            };
+            Instruction { count, dr, dc }
         })
         .collect()
 }
