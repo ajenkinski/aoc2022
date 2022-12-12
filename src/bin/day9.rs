@@ -9,6 +9,12 @@ struct Instruction {
     dc: isize,    // column delta
 }
 
+#[derive(Clone, Copy)]
+struct Coord {
+    row: isize,
+    col: isize,
+}
+
 fn parse_input(input: &String) -> Vec<Instruction> {
     input
         .lines()
@@ -42,24 +48,32 @@ fn parse_input(input: &String) -> Vec<Instruction> {
         .collect()
 }
 
-fn solve_part1(instructions: &Vec<Instruction>) -> usize {
+fn solve(instructions: &Vec<Instruction>, num_knots: usize) -> usize {
+    assert!(num_knots >= 2);
+    let mut rope = vec![Coord { row: 0, col: 0 }; num_knots];
     let mut visited: HashSet<(isize, isize)> = HashSet::new();
     visited.insert((0, 0));
 
-    let mut head_row: isize = 0;
-    let mut head_col: isize = 0;
-    let mut tail_row: isize = 0;
-    let mut tail_col: isize = 0;
-
     for instruction in instructions.iter() {
         for _ in 0..instruction.count {
-            head_row += instruction.dr;
-            head_col += instruction.dc;
-            if head_row.abs_diff(tail_row) > 1 || head_col.abs_diff(tail_col) > 1 {
-                tail_row += (head_row - tail_row).signum();
-                tail_col += (head_col - tail_col).signum();
+            rope[0].row += instruction.dr;
+            rope[0].col += instruction.dc;
+
+            for knot in 1..rope.len() {
+                // This is needed to convince the compiler to allow two refs into the rope vec
+                let (heads, tails) = rope.split_at_mut(knot);
+                let prev_knot = &heads[heads.len() - 1];
+                let cur_knot = &mut tails[0];
+
+                if prev_knot.row.abs_diff(cur_knot.row) > 1
+                    || prev_knot.col.abs_diff(cur_knot.col) > 1
+                {
+                    cur_knot.row += (prev_knot.row - cur_knot.row).signum();
+                    cur_knot.col += (prev_knot.col - cur_knot.col).signum();
+                }
             }
-            visited.insert((tail_row, tail_col));
+
+            visited.insert((rope[num_knots - 1].row, rope[num_knots - 1].col));
         }
     }
 
@@ -80,11 +94,30 @@ D 1
 R 4
 D 1
 L 5
-R 2
-    ".trim().to_string();
+R 2"
+        .trim()
+        .to_string();
 
-    let instructions = parse_input(&input);
-    assert_eq!(solve_part1(&instructions), 13);    
+        let instructions = parse_input(&input);
+        assert_eq!(solve(&instructions, 2), 13);
+    }
+
+    #[test]
+    fn test_part2() {
+        let input = "
+R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20"
+            .trim()
+            .to_string();
+
+        let instructions = parse_input(&input);
+        assert_eq!(solve(&instructions, 10), 36);
     }
 }
 
@@ -93,5 +126,6 @@ fn main() {
 
     let instructions = parse_input(&input);
 
-    println!("Part 1 solution = {}", solve_part1(&instructions));
+    println!("Part 1 solution = {}", solve(&instructions, 2));
+    println!("Part 2 solution = {}", solve(&instructions, 10));
 }
