@@ -9,7 +9,7 @@ struct Instruction {
     dc: isize,    // column delta
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Coord {
     row: isize,
     col: isize,
@@ -36,8 +36,7 @@ fn parse_input(input: &String) -> Vec<Instruction> {
 fn solve(instructions: &Vec<Instruction>, num_knots: usize) -> usize {
     assert!(num_knots >= 2);
     let mut rope = vec![Coord { row: 0, col: 0 }; num_knots];
-    let mut visited: HashSet<(isize, isize)> = HashSet::new();
-    visited.insert((0, 0));
+    let mut visited: HashSet<Coord> = HashSet::new();
 
     for instruction in instructions.iter() {
         for _ in 0..instruction.count {
@@ -45,20 +44,15 @@ fn solve(instructions: &Vec<Instruction>, num_knots: usize) -> usize {
             rope[0].col += instruction.dc;
 
             for knot in 1..rope.len() {
-                // This is needed to convince the compiler to allow two refs into the rope vec
-                let (heads, tails) = rope.split_at_mut(knot);
-                let prev_knot = &heads[heads.len() - 1];
-                let cur_knot = &mut tails[0];
-
-                if prev_knot.row.abs_diff(cur_knot.row) > 1
-                    || prev_knot.col.abs_diff(cur_knot.col) > 1
+                if rope[knot - 1].row.abs_diff(rope[knot].row) > 1
+                    || rope[knot - 1].col.abs_diff(rope[knot].col) > 1
                 {
-                    cur_knot.row += (prev_knot.row - cur_knot.row).signum();
-                    cur_knot.col += (prev_knot.col - cur_knot.col).signum();
+                    rope[knot].row += (rope[knot - 1].row - rope[knot].row).signum();
+                    rope[knot].col += (rope[knot - 1].col - rope[knot].col).signum();
                 }
             }
 
-            visited.insert((rope[num_knots - 1].row, rope[num_knots - 1].col));
+            visited.insert(*rope.last().unwrap());
         }
     }
 
