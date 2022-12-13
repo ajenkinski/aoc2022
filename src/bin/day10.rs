@@ -59,8 +59,8 @@ fn solve_part2(instructions: &Vec<Instruction>) -> String {
     let mut pixels = vec![' '; width * height];
 
     for (cycle, x) in exec_instructions(instructions).enumerate() {
-        let col = cycle % width;
-        if x.abs_diff(col as isize) <= 1 {
+        let draw_col = cycle % width;
+        if x.abs_diff(draw_col as isize) <= 1 {
             pixels[cycle] = '#';
         } else {
             pixels[cycle] = '.';
