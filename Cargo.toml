@@ -11,6 +11,7 @@ path = "src/lib.rs"
 
 [dependencies]
 itertools = "0.10.5"
+regex = "1.7.0"
 take-until = "0.1.0"
 
 [dev-dependencies]
