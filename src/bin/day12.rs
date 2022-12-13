@@ -1,14 +1,19 @@
 // https://adventofcode.com/2022/day/12
 
-use std::fs::read_to_string;
+use std::{collections::HashMap, fs::read_to_string};
 
 use itertools::Itertools;
-use petgraph::{algo::k_shortest_path, graphmap::DiGraphMap};
+use petgraph::{
+    algo::k_shortest_path,
+    graph::DiGraph,
+    visit::{GraphBase, Reversed},
+};
 
-use common::{Coord, Grid};
+use common::Grid;
 
 // node labels are grid (row, col) coordinates
-type HeightMap = DiGraphMap<Coord, ()>;
+type HeightMap = DiGraph<usize, ()>;
+type NodeId = <HeightMap as GraphBase>::NodeId;
 
 fn cell_height(ch: char) -> usize {
     let ch = match ch {
@@ -19,7 +24,7 @@ fn cell_height(ch: char) -> usize {
     (ch as usize) - ('a' as usize)
 }
 
-fn parse_input(input: &String) -> (HeightMap, Coord, Coord) {
+fn parse_input(input: &String) -> (HeightMap, NodeId, NodeId) {
     let grid = Grid::new(
         input
             .trim()
@@ -30,39 +35,60 @@ fn parse_input(input: &String) -> (HeightMap, Coord, Coord) {
 
     let mut graph = HeightMap::new();
 
-    let mut start_coord: Coord = (0, 0);
-    let mut end_coord: Coord = (0, 0);
+    let mut start_node = NodeId::default();
+    let mut end_node = NodeId::default();
+
+    let mut coord_node_map = HashMap::new();
 
     for coord in grid.all_coords() {
-        let this_val = grid[coord];
+        let node_id = graph.add_node(cell_height(grid[coord]));
 
-        if this_val == 'S' {
-            start_coord = coord;
-        } else if this_val == 'E' {
-            end_coord = coord;
+        coord_node_map.insert(coord, node_id);
+
+        if grid[coord] == 'S' {
+            start_node = node_id;
+        } else if grid[coord] == 'E' {
+            end_node = node_id;
         }
+    }
 
-        for nc in grid.neighbor_coords(coord) {
-            if cell_height(this_val) + 1 >= cell_height(grid[nc]) {
-                graph.add_edge(coord, nc, ());
+    for from_coord in grid.all_coords() {
+        let from_val = grid[from_coord];
+        let from_node = coord_node_map[&from_coord];
+
+        for nc in grid.neighbor_coords(from_coord) {
+            if cell_height(from_val) + 1 >= cell_height(grid[nc]) {
+                graph.add_edge(from_node, coord_node_map[&nc], ());
             }
         }
     }
 
-    (graph, start_coord, end_coord)
+    (graph, start_node, end_node)
 }
 
-fn solve_part1(graph: &HeightMap, start_coord: Coord, end_coord: Coord) -> usize {
-    let res = k_shortest_path(graph, start_coord, Some(end_coord), 1, |_| 1);
-    res[&end_coord]
+fn solve_part1(graph: &HeightMap, start_node: NodeId, end_node: NodeId) -> usize {
+    let res = k_shortest_path(graph, start_node, Some(end_node), 1, |_| 1);
+    res[&end_node]
+}
+
+fn solve_part2(graph: &HeightMap, end_node: NodeId) -> usize {
+    let all_lengths = k_shortest_path(Reversed(graph), end_node, None, 1, |_| 1);
+
+    all_lengths
+        .into_iter()
+        .filter_map(|(node_id, len)| if graph[node_id] == 0 { Some(len) } else { None })
+        .min()
+        .unwrap() as usize
 }
 
 fn main() {
     let input = read_to_string("input/day12-input.txt").unwrap();
-    let (graph, start_coord, end_coord) = parse_input(&input);
+    let (graph, start_node, end_node) = parse_input(&input);
 
     println!(
         "Part 1 solution = {}",
-        solve_part1(&graph, start_coord, end_coord)
+        solve_part1(&graph, start_node, end_node)
     );
+
+    println!("Part 2 solution = {}", solve_part2(&graph, end_node));
 }
