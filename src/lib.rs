@@ -15,7 +15,7 @@ where
 
 pub type Coord = (usize, usize);
 
-/// A 2D grid convenience type
+/// A 2D grid convenience type.  Supports indexing by Coord or row id
 pub struct Grid<T>(Vec<Vec<T>>);
 
 impl<T> Grid<T> {
@@ -36,6 +36,15 @@ impl<T> Grid<T> {
         self.0[0].len()
     }
 
+    pub fn num_elems(&self) -> usize {
+        self.num_rows() * self.num_cols()
+    }
+
+    pub fn linear_index(&self, coord: Coord) -> usize {
+        coord.0 * self.num_cols() + coord.1
+    }
+
+    /// coordinates of up, down, left and right neighbors
     pub fn neighbor_coords(&self, coord: Coord) -> impl Iterator<Item = Coord> {
         let (row, col) = (coord.0 as isize, coord.1 as isize);
         let row_range = 0..(self.num_rows() as isize);
@@ -57,6 +66,7 @@ impl<T> Grid<T> {
         })
     }
 
+    /// All coordinates in the grid
     pub fn all_coords(&self) -> impl Iterator<Item = Coord> {
         (0..self.num_rows()).cartesian_product(0..self.num_cols())
     }

@@ -11,7 +11,6 @@ use petgraph::{
 
 use common::Grid;
 
-// node labels are grid (row, col) coordinates
 type HeightMap = DiGraph<usize, ()>;
 type NodeId = <HeightMap as GraphBase>::NodeId;
 
@@ -40,6 +39,7 @@ fn parse_input(input: &String) -> (HeightMap, NodeId, NodeId) {
 
     let mut coord_node_map = HashMap::new();
 
+    // need to add nodes before we can add edges
     for coord in grid.all_coords() {
         let node_id = graph.add_node(cell_height(grid[coord]));
 
@@ -52,6 +52,7 @@ fn parse_input(input: &String) -> (HeightMap, NodeId, NodeId) {
         }
     }
 
+    // add edges
     for from_coord in grid.all_coords() {
         let from_val = grid[from_coord];
         let from_node = coord_node_map[&from_coord];
@@ -72,13 +73,16 @@ fn solve_part1(graph: &HeightMap, start_node: NodeId, end_node: NodeId) -> usize
 }
 
 fn solve_part2(graph: &HeightMap, end_node: NodeId) -> usize {
-    let all_lengths = k_shortest_path(Reversed(graph), end_node, None, 1, |_| 1);
+    // find lengths of shortest paths from all nodes to end_node.  I do this by reversing the edges in the graph, and then asking
+    // for the shortest paths from the end_node to all other nodes.
+    let all_lengths = k_shortest_path(Reversed(graph), end_node, None, 1, |_| 1usize);
 
+    // find the min length after keeping only lengths starting from nodes with height 0
     all_lengths
         .into_iter()
         .filter_map(|(node_id, len)| if graph[node_id] == 0 { Some(len) } else { None })
         .min()
-        .unwrap() as usize
+        .unwrap()
 }
 
 fn main() {

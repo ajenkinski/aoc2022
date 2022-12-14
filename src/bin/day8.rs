@@ -5,19 +5,19 @@ use std::{collections::HashSet, fs::read_to_string};
 use itertools::Itertools;
 use take_until::TakeUntilExt;
 
-type Grid = Vec<Vec<char>>;
+type Grid = common::Grid<char>;
 
 fn parse_input(input: &String) -> Grid {
-    input
+    Grid::new(input
         .trim()
         .lines()
         .map(|line| line.chars().collect())
-        .collect()
+        .collect())
 }
 
 fn solve_part1(grid: &Grid) -> usize {
-    let grid_width = grid[0].len();
-    let grid_height = grid.len();
+    let grid_width = grid.num_cols();
+    let grid_height = grid.num_rows();
 
     let mut visible_coords = HashSet::new();
 
@@ -68,8 +68,8 @@ fn solve_part1(grid: &Grid) -> usize {
 
 /// Return all paths radiating out from (row, col) to the edges
 fn get_paths_from(grid: &Grid, row: usize, col: usize) -> [Vec<(usize, usize)>; 4] {
-    let width = grid[0].len();
-    let height = grid.len();
+    let width = grid.num_cols();
+    let height = grid.num_rows();
 
     [
         ((col + 1)..width).map(|c| (row, c)).collect(), // to right
@@ -93,11 +93,8 @@ fn find_scenic_score(grid: &Grid, row: usize, col: usize) -> usize {
 }
 
 fn solve_part2(grid: &Grid) -> usize {
-    let grid_width = grid[0].len();
-    let grid_height = grid.len();
-
-    (1..grid_height - 1)
-        .cartesian_product(1..grid_width - 1)
+    (1..grid.num_rows() - 1)
+        .cartesian_product(1..grid.num_cols() - 1)
         .map(|(row, col)| find_scenic_score(grid, row, col))
         .max()
         .unwrap()
