@@ -40,6 +40,7 @@ impl<T> Grid<T> {
         self.num_rows() * self.num_cols()
     }
 
+    // convert a coordinate to a linear index, treating linear indexes as progressing in row-major order
     pub fn linear_index(&self, coord: Coord) -> usize {
         coord.0 * self.num_cols() + coord.1
     }
@@ -66,7 +67,7 @@ impl<T> Grid<T> {
         })
     }
 
-    /// All coordinates in the grid
+    /// All coordinates in the grid, in row-major order
     pub fn all_coords(&self) -> impl Iterator<Item = Coord> {
         (0..self.num_rows()).cartesian_product(0..self.num_cols())
     }

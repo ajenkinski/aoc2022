@@ -4,7 +4,7 @@ use std::{collections::HashMap, fs::read_to_string};
 
 use itertools::Itertools;
 use petgraph::{
-    algo::k_shortest_path,
+    algo::dijkstra::dijkstra,
     graph::DiGraph,
     visit::{GraphBase, Reversed},
 };
@@ -68,14 +68,14 @@ fn parse_input(input: &String) -> (HeightMap, NodeId, NodeId) {
 }
 
 fn solve_part1(graph: &HeightMap, start_node: NodeId, end_node: NodeId) -> usize {
-    let res = k_shortest_path(graph, start_node, Some(end_node), 1, |_| 1);
+    let res = dijkstra(graph, start_node, Some(end_node), |_| 1);
     res[&end_node]
 }
 
 fn solve_part2(graph: &HeightMap, end_node: NodeId) -> usize {
     // find lengths of shortest paths from all nodes to end_node.  I do this by reversing the edges in the graph, and then asking
     // for the shortest paths from the end_node to all other nodes.
-    let all_lengths = k_shortest_path(Reversed(graph), end_node, None, 1, |_| 1usize);
+    let all_lengths = dijkstra(Reversed(graph), end_node, None, |_| 1usize);
 
     // find the min length after keeping only lengths starting from nodes with height 0
     all_lengths

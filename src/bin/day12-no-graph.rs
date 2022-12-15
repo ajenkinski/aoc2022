@@ -47,18 +47,19 @@ fn parse_input(input: &String) -> (HeightMap, Coord, Coord) {
     (map, start_coord, end_coord)
 }
 
-/// Finds shortest paths from a start coordinate to all other coordinates in map.  
+/// Finds shortest paths from a start coordinate to all other coordinates in map, 
+/// using a breadth-first-traversal.
 /// If goal is not None, then stops when it finds a path to the goal coordinate.
 /// The get_neighbors function determines where the traversal can go from a given coordinate.
 /// Returns a map of destination coord to shortest path to that coord from start.
-fn find_shortest_paths<NF>(
+fn find_shortest_paths<F>(
     map: &HeightMap,
     start: Coord,
     goal: Option<Coord>,
-    mut get_neighbors: NF,
+    mut get_neighbors: F,
 ) -> HashMap<Coord, usize>
 where
-    NF: FnMut(&HeightMap, Coord) -> Vec<Coord>,
+    F: FnMut(&HeightMap, Coord) -> Vec<Coord>,
 {
     // (path_length, coord) pairs
     let mut to_visit: VecDeque<(usize, Coord)> = VecDeque::new();
