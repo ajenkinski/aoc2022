@@ -16,6 +16,7 @@ where
 pub type Coord = (usize, usize);
 
 /// A 2D grid convenience type.  Supports indexing by Coord or row id
+#[derive(Clone)]
 pub struct Grid<T>(Vec<Vec<T>>);
 
 impl<T> Grid<T> {

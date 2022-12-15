@@ -12,6 +12,9 @@ enum Elem {
 
 type Packet = Vec<Elem>;
 
+// Custom Eq and Ord.  These differ from what the default would be only in that when comparing
+// a Num and a List, the Num is treated as a 1-element List.
+
 impl PartialEq for Elem {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
