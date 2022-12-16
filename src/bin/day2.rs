@@ -29,7 +29,7 @@ impl TryFrom<i32> for Move {
             0 => Ok(Move::Rock),
             1 => Ok(Move::Paper),
             2 => Ok(Move::Scissor),
-            _ => Err(format!("Invalid move: {}", value)),
+            _ => Err(format!("Invalid move: {value}")),
         }
     }
 }
@@ -93,7 +93,7 @@ fn solve_part2(rounds: &[(char, char)]) -> usize {
             'X' => opponent_move.losing_move(),
             'Y' => opponent_move,
             'Z' => opponent_move.winning_move(),
-            _ => panic!("Unexpected move char '{}'", my_char),
+            _ => panic!("Unexpected move char '{my_char}'"),
         };
 
         get_round_score(opponent_move, my_move)

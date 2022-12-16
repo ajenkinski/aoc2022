@@ -1,6 +1,6 @@
 // https://adventofcode.com/2022/day/1
 
-use std::fs::read_to_string;
+use std::{fs::read_to_string, cmp::Reverse};
 
 use itertools::Itertools;
 
@@ -16,12 +16,12 @@ fn main() {
                 .map(|l| l.parse::<u32>().unwrap())
                 .sum::<u32>()
         })
-        .sorted_by(|a, b| Ord::cmp(b, a))
+        .sorted_by_key(|&s| Reverse(s))
         .collect_vec();
 
     let part1_solution = calories_per_elf[0];
-    println!("Part 1 solution = {}", part1_solution);
+    println!("Part 1 solution = {part1_solution}");
 
     let part2_solution = calories_per_elf[0..3].iter().sum::<u32>();
-    println!("Part 2 solution = {}", part2_solution);
+    println!("Part 2 solution = {part2_solution}");
 }

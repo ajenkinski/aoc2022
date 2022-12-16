@@ -1,6 +1,6 @@
 // https://adventofcode.com/2022/day/14
 
-use std::{fs::read_to_string, collections::HashSet};
+use std::{collections::HashSet, fs::read_to_string};
 
 use itertools::Itertools;
 
@@ -10,10 +10,7 @@ type Path = Vec<Coord>;
 #[derive(Default)]
 struct Scan {
     grid: HashSet<Coord>,
-    min_row: isize,
-    min_col: isize,
     max_row: isize,
-    max_col: isize,
 
     // If set, behaves as if there is an infinite horizontal line at this row
     floor: Option<isize>,
@@ -29,12 +26,8 @@ impl Scan {
     }
 
     fn set(&mut self, coord: Coord) {
-        let (row, col) = coord;
         if self.grid.insert(coord) {
-            self.min_row = row.min(self.min_row);
-            self.min_col = col.min(self.min_col);
-            self.max_row = row.max(self.max_row);
-            self.max_col = col.max(self.max_col);
+            self.max_row = coord.0.max(self.max_row);
         }
     }
 
@@ -86,25 +79,14 @@ fn simulate_drop(scan: &Scan) -> Option<Option<Coord>> {
     let mut cur_col: isize = 500;
 
     if scan.is_set((cur_row, cur_col)) {
-        return None
+        return None;
     }
 
-    let row_bounds = 0..=scan.max_row;
-    let col_bounds = 0..=scan.max_col;
-    let in_bounds = |row: isize, col: isize| {
-         let col_in_bounds = scan.floor.is_some() || col_bounds.contains(&col);
-         col_in_bounds && row_bounds.contains(&row)
-    };
-
     loop {
-        // check down
         let mut moved = false;
-        for (next_row, next_col) in [
-            (cur_row + 1, cur_col),
-            (cur_row + 1, cur_col - 1),
-            (cur_row + 1, cur_col + 1),
-        ] {
-            if !in_bounds(next_row, next_col) {
+        for next_col in [cur_col, cur_col - 1, cur_col + 1] {
+            let next_row = cur_row + 1;
+            if next_row > scan.max_row {
                 return Some(None);
             } else if !scan.is_set((next_row, next_col)) {
                 cur_row = next_row;
